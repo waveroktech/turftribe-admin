@@ -1,5 +1,6 @@
-// Platform backoffice. Shapes follow docs/admin-backend-contract.md; every
-// endpoint lives under /admin and is restricted to user.role admin/superadmin.
+// Platform backoffice. Shapes follow docs/admin-backend-contract.md. Lists
+// come from the shared endpoints with ?view=platform; each needs the
+// platform permission noted there.
 
 export type AdminPagination = {
 	total: number;
@@ -18,7 +19,7 @@ export type AdminPage<T> = {
 export type AdminListParams = {
 	page?: number;
 	limit?: number;
-	search?: string;
+	q?: string;
 };
 
 // Dashboard
@@ -111,7 +112,6 @@ export type AdminUserDetail = AdminUser & {
 	gender: string | null;
 	sports: string[];
 	communities: { id: string; name: string; role: 'member' | 'manager' | 'staff'; joinedAt: string | null }[];
-	recentPayments: AdminPayment[];
 };
 
 export type AdminUsersParams = AdminListParams & {
@@ -144,6 +144,7 @@ export type AdminPaymentsParams = AdminListParams & {
 	type?: PaymentType;
 	status?: PaymentStatus;
 	communityId?: string;
+	userId?: string;
 	from?: string;
 	to?: string;
 };

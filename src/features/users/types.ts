@@ -1,4 +1,4 @@
-import type { Permission } from '@/lib/permissions';
+import type { Permission, PlatformPermission } from '@/lib/permissions';
 
 export interface User {
 	_id: string;
@@ -31,8 +31,11 @@ export interface User {
 	staffRole?: { id: string; name: string; permissions: Permission[] } | null;
 	// Pages a staff user may open; null for owners and players (unrestricted).
 	permissions?: Permission[] | null;
-	// Platform role: 'admin' | 'superadmin' unlock the /admin backoffice.
+	// Platform role: 'admin' | 'superadmin'; null for everyone else.
 	role?: string | null;
+	// Backoffice permissions the platform role grants. Read through
+	// usePermissions().
+	platformPermissions?: PlatformPermission[];
 	isKycCompleted: boolean;
 	banks: {
 		bankName: string;

@@ -20,7 +20,7 @@ const FeeDialog = ({ community, onClose }: { community: AdminCommunity; onClose:
 
 	const save = async () => {
 		try {
-			await updateCommission({ id: community.id, commission: { platformFee: fee } }).unwrap();
+			await updateCommission({ id: community.id, commission: { platformFee: fee }, exists: !!current }).unwrap();
 			toast.success(`Fee for ${community.name} is now ${naira(fee)} per booking.`);
 			onClose();
 		} catch (error) {

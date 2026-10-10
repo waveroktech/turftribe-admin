@@ -43,7 +43,7 @@ const AdminUsers = () => {
 	const { data, error, isLoading, isFetching, refetch } = useGetAdminUsersQuery({
 		page,
 		limit: PAGE_SIZE,
-		search: debouncedSearch,
+		q: debouncedSearch,
 		userType: userType === ALL ? undefined : userType,
 	});
 	const rows = data?.data ?? [];

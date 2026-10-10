@@ -5,7 +5,8 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser, setSignUpSuccess, setUser } from '@/features/auth/authSlice';
 import { deleteAuthCookie } from '@/lib/auth';
 import { cn } from '@/lib/utils';
-import { adminSidebarLinks } from '@/lib/admin';
+import { adminSidebarLinks, linkForPath } from '@/lib/admin';
+import { usePermissions } from '@/hooks/usePermissions';
 import {
 	Sidebar,
 	SidebarContent,
@@ -33,16 +34,11 @@ const AppSidebar = () => {
 	const pathname = usePathname();
 	const dispatch = useAppDispatch();
 	const user = useAppSelector(selectUser);
-	const links = adminSidebarLinks;
+	const { can } = usePermissions();
+	const links = adminSidebarLinks.filter((link) => can(link.permission));
 	const expanded = open || isMobile;
 
-	// The most specific href wins, so /admin/users highlights "Users" rather
-	// than the /admin dashboard, and nested routes keep their parent lit.
-	const activeHref = links
-		.filter(
-			(link) => pathname === link.href || pathname.startsWith(`${link.href}/`)
-		)
-		.sort((a, b) => b.href.length - a.href.length)[0]?.href;
+	const activeHref = linkForPath(pathname)?.href;
 
 	const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
 

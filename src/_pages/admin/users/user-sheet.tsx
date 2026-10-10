@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from 'lucide-react';
-import { useGetAdminUserQuery } from '@/features/admin/adminApi';
+import { useGetAdminPaymentsQuery, useGetAdminUserQuery } from '@/features/admin/adminApi';
+import { usePermissions } from '@/hooks/usePermissions';
 import { AdminUser } from '@/features/admin/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
@@ -11,6 +12,8 @@ import { AdminQueryState, PAYMENT_STATUS_TONE, Pill, SheetCloseButton, dateTime,
 export const initials = (user: Pick<AdminUser, 'firstName' | 'lastName'>) =>
 	`${user.firstName?.charAt(0) ?? ''}${user.lastName?.charAt(0) ?? ''}`.toUpperCase() || 'TT';
 
+const RECENT_PAYMENTS = 10;
+
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
 	<section className='flex flex-col gap-2'>
 		<h3 className='text-[11px] font-semibold uppercase tracking-wide text-subtle'>{title}</h3>
@@ -21,6 +24,14 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 const UserSheet = ({ user, onClose }: { user: AdminUser; onClose: () => void }) => {
 	// The list row renders the header straight away; the rest loads in.
 	const { data: detail, error, isLoading } = useGetAdminUserQuery(user.id);
+	// Their payments come from the payments list, so they need that permission.
+	const { can } = usePermissions();
+	const canSeePayments = can('platform:payments');
+	const { data: payments } = useGetAdminPaymentsQuery(
+		{ userId: user.id, limit: RECENT_PAYMENTS },
+		{ skip: !canSeePayments }
+	);
+	const recentPayments = payments?.data ?? [];
 	const name = fullName(user.firstName, user.lastName);
 
 	return (
@@ -125,32 +136,34 @@ const UserSheet = ({ user, onClose }: { user: AdminUser; onClose: () => void }) 
 								)}
 							</Section>
 
-							<Section title='Recent payments'>
-								{detail.recentPayments.length ? (
-									<ul className='overflow-hidden rounded-2xl bg-surface-raised ring-1 ring-black/[0.06]'>
-										{detail.recentPayments.map((payment) => (
-											<li
-												key={payment.id}
-												className='flex items-start justify-between gap-3 border-b border-line/60 px-3.5 py-2.5 last:border-b-0'>
-												<div className='min-w-0'>
-													<p className='truncate text-sm font-medium capitalize text-ink'>
-														{payment.match?.title ?? payment.type}
-													</p>
-													<p className='truncate text-xs text-subtle'>
-														{payment.community?.name ?? '—'} · {dateTime(payment.createdAt)}
-													</p>
-												</div>
-												<div className='flex shrink-0 flex-col items-end gap-1'>
-													<span className='text-sm font-bold tabular-nums text-ink'>{naira(payment.amount)}</span>
-													<Pill tone={PAYMENT_STATUS_TONE[payment.status]}>{payment.status}</Pill>
-												</div>
-											</li>
-										))}
-									</ul>
-								) : (
-									<p className='text-sm text-subtle'>No payments yet.</p>
-								)}
-							</Section>
+							{canSeePayments && (
+								<Section title='Recent payments'>
+									{recentPayments.length ? (
+										<ul className='overflow-hidden rounded-2xl bg-surface-raised ring-1 ring-black/[0.06]'>
+											{recentPayments.map((payment) => (
+												<li
+													key={payment.id}
+													className='flex items-start justify-between gap-3 border-b border-line/60 px-3.5 py-2.5 last:border-b-0'>
+													<div className='min-w-0'>
+														<p className='truncate text-sm font-medium capitalize text-ink'>
+															{payment.match?.title ?? payment.type}
+														</p>
+														<p className='truncate text-xs text-subtle'>
+															{payment.community?.name ?? '—'} · {dateTime(payment.createdAt)}
+														</p>
+													</div>
+													<div className='flex shrink-0 flex-col items-end gap-1'>
+														<span className='text-sm font-bold tabular-nums text-ink'>{naira(payment.amount)}</span>
+														<Pill tone={PAYMENT_STATUS_TONE[payment.status]}>{payment.status}</Pill>
+													</div>
+												</li>
+											))}
+										</ul>
+									) : (
+										<p className='text-sm text-subtle'>No payments yet.</p>
+									)}
+								</Section>
+							)}
 						</>
 					)}
 				</div>

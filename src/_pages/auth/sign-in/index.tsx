@@ -10,7 +10,8 @@ import { icons } from '@/components/icons/icons';
 import { z } from 'zod';
 import { Form } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { ADMIN_HOME, isPlatformAdmin } from '@/lib/admin';
+import { ADMIN_HOME } from '@/lib/admin';
+import { hasBackofficeAccess } from '@/hooks/usePermissions';
 
 import AppInput from '@/components/ui/app-input';
 import LoadingButton from '@/components/ui/loading-button';
@@ -39,9 +40,9 @@ const SignIn = () => {
 		try {
 			const res = await login(data).unwrap();
 
-			// Only platform admins get a session here. The backend's
-			// PlatformAdminGuard rejects everyone else on /admin regardless.
-			if (!isPlatformAdmin(res?.data)) {
+			// Only users with backoffice permissions get a session here. The
+			// backend rejects everyone else's backoffice requests regardless.
+			if (!hasBackofficeAccess(res?.data)) {
 				toast.error("This account doesn't have backoffice access.");
 				return;
 			}

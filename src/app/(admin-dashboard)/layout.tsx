@@ -1,22 +1,32 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { withAuth } from '../withAuth';
-import { useIsPlatformAdmin } from '@/lib/admin';
+import { adminSidebarLinks, linkForPath } from '@/lib/admin';
+import { usePermissions } from '@/hooks/usePermissions';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
 import AppSidebar from '@/components/app-sidebar';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
 	const router = useRouter();
-	const allowed = useIsPlatformAdmin();
+	const pathname = usePathname();
+	const { can, hasBackofficeAccess } = usePermissions();
 
-	// Anyone without a platform role is sent to sign in. The backend's
-	// PlatformAdminGuard rejects their requests regardless.
+	// Anyone without backoffice permissions is sent to sign in, and a page
+	// the user's role doesn't cover sends them to the first one it does.
+	// The backend refuses their requests regardless.
+	const page = linkForPath(pathname);
+	const allowed = hasBackofficeAccess && (!page || can(page.permission));
 	useEffect(() => {
-		if (!allowed) router.replace('/sign-in');
-	}, [allowed, router]);
+		if (!hasBackofficeAccess) {
+			router.replace('/sign-in');
+		} else if (!allowed) {
+			const fallback = adminSidebarLinks.find((link) => can(link.permission));
+			router.replace(fallback?.href ?? '/sign-in');
+		}
+	}, [allowed, can, hasBackofficeAccess, router]);
 
 	return (
 		<SidebarProvider>
