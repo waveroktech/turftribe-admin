@@ -70,7 +70,8 @@ Amounts are in naira, as stored. "This month" and monthly buckets use
   subscriptions. Membership passes carry no platform cut today.
 - **Fees.** Checkout charges `commission.platformFee` as a flat naira amount
   per booking. The other commission fields aren't read, so the fee dialog
-  only edits `platformFee`. A community with no commission row
+  only edits `platformFee`, which `PUT /commissions` limits to ₦100–₦5,000
+  for flat fees. A community with no commission row
   (`commission: null` in the list) fails checkout; its first save sends
   `actionType: 'create'`, later saves send `'update'`.
 - **Community status** is only recorded. Nothing reads it yet, so
