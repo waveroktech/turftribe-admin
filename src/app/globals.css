@@ -1,0 +1,474 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media (prefers-color-scheme: dark) {
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* Internet Explorer 10+ */
+		scrollbar-width: none; /* Firefox */
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none; /* WebKit */
+	}
+}
+
+@layer base {
+	:root {
+		--background: 0 0% 100%;
+		--foreground: #fff;
+		--card: 0 0% 100%;
+		--card-foreground: 0 0% 3.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 0 0% 3.9%;
+		--primary: 0 0% 9%;
+		--primary-foreground: 0 0% 98%;
+		--secondary: 0 0% 96.1%;
+		--secondary-foreground: 0 0% 9%;
+		--muted: 0 0% 96.1%;
+		--font-quicksand: 'Quicksand';
+		/* --muted-foreground: 0 0% 45.1%; */
+		--accent: 0 0% 96.1%;
+		--accent-foreground: 0 0% 9%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 0 0% 89.8%;
+		--input: 0 0% 89.8%;
+		--ring: 0 0% 3.9%;
+		--chart-1: 12 76% 61%;
+		--chart-2: 173 58% 39%;
+		--chart-3: 197 37% 24%;
+		--chart-4: 43 74% 66%;
+		--chart-5: 27 87% 67%;
+		--radius: 0.5rem;
+
+		/* TurfTribe brand tokens (consumed via tailwind `brand`, `ink`, `surface`) */
+		--brand: 75 79% 68%; /* #CEEE6F */
+		--brand-foreground: 0 0% 5%; /* #0C0C0C */
+		--brand-soft: 76 100% 95%; /* #F8FFE4 */
+		--brand-strong: 76 60% 62%; /* #B8D962 hover */
+		--ink: 0 0% 5%;
+		--ink-foreground: 0 0% 100%;
+		--surface: 0 0% 97%; /* #F7F7F7 */
+		--surface-raised: 0 0% 100%;
+		--line: 220 13% 91%;
+		--text-subtle: 215 16% 47%; /* #64748B */
+		--success: 145 63% 42%; /* #27AE60 */
+		--warning: 45 86% 62%;
+		--danger: 5 88% 56%;
+	}
+	.dark {
+		--background: 0 0% 3.9%;
+		--foreground: 0 0% 98%;
+		--card: 0 0% 3.9%;
+		--card-foreground: 0 0% 98%;
+		--popover: 0 0% 3.9%;
+		--popover-foreground: 0 0% 98%;
+		--primary: 0 0% 98%;
+		--primary-foreground: 0 0% 9%;
+		--secondary: 0 0% 14.9%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 0 0% 14.9%;
+		--muted-foreground: 0 0% 63.9%;
+		--accent: 0 0% 14.9%;
+		--accent-foreground: 0 0% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 0 0% 14.9%;
+		--input: 0 0% 14.9%;
+		--ring: 0 0% 83.1%;
+		--chart-1: 220 70% 50%;
+		--chart-2: 160 60% 45%;
+		--chart-3: 30 80% 55%;
+		--chart-4: 280 65% 60%;
+		--chart-5: 340 75% 55%;
+		--sidebar-background: 240 5.9% 10%;
+		--sidebar-foreground: 240 4.8% 95.9%;
+		--sidebar-primary: 224.3 76.3% 48%;
+		--sidebar-primary-foreground: 0 0% 100%;
+		--sidebar-accent: 240 3.7% 15.9%;
+		--sidebar-accent-foreground: 240 4.8% 95.9%;
+		--sidebar-border: 240 3.7% 15.9%;
+		--sidebar-ring: 217.2 91.2% 59.8%;
+	}
+}
+
+blockquote,
+q {
+	quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+	content: '';
+	content: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+*,
+*:after,
+*:before {
+	box-sizing: border-box;
+}
+
+/**Extras*/
+button,
+[role='button'] {
+	cursor: pointer;
+	outline: none;
+	@apply focus-within:ring-0 ring-0;
+}
+
+a {
+	outline: none;
+}
+
+html, body {
+	background-color: var(--background);
+	font-family: var(--font-quicksand);
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	 height: 100%;
+  margin: 0;
+}
+
+main {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+button,
+input {
+	font-family: inherit;
+}
+
+textarea {
+	resize: none;
+}
+
+.app-container {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 1600px;
+}
+
+/* Remove Chrome/Edge/Safari autofill blue background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+	-webkit-box-shadow: 0 0 0 30px transparent inset !important;
+	box-shadow: 0 0 0 30px transparent inset !important;
+	-webkit-text-fill-color: inherit !important;
+	-webkit-text-fill-color: #6a6a6a !important;
+}
+
+/* Tailwind CSS approach if you're using Tailwind */
+.bg-transparent-autofill {
+	&:-webkit-autofill {
+		-webkit-box-shadow: 0 0 0 30px transparent inset !important;
+		box-shadow: 0 0 0 30px transparent inset !important;
+		-webkit-text-fill-color: inherit !important;
+	}
+}
+
+/* Global input reset for autofill */
+input {
+	&:-webkit-autofill,
+	&:-webkit-autofill:hover,
+	&:-webkit-autofill:focus,
+	&:-webkit-autofill:active {
+		transition: background-color 5000s ease-in-out 0s;
+	}
+}
+
+.app-select .lucide-check {
+	display: none;
+}
+.select-val svg {
+	display: none;
+}
+.lucide-chevron-down[aria-hidden='true'] {
+	display: none;
+}
+.\[\&\>svg\]\:size-4 > svg {
+	height: 100% !important;
+	width: 1.5rem !important;
+}
+.app-block {
+	/* Mobile: soft raised surface (app feel). md+: original outlined block. */
+	@apply mt-4 rounded-[22px] border border-solid border-black/[0.05] bg-white p-4 shadow-card
+		md:rounded-[24px] md:border-gray-5 md:bg-transparent md:p-6 md:shadow-none;
+}
+
+.group[data-collapsible='icon'] .group-data-\[collapsible\=icon\]\:\!size-8 {
+	height: 3rem !important;
+}
+
+.embla {
+	overflow: hidden;
+}
+.embla__container {
+	display: flex;
+}
+.embla__slide {
+	flex: 0 0 30%;
+	min-width: 0;
+	@media screen and (max-width: 1200px) {
+		flex: 0 0 40%;
+	}
+	@media screen and (max-width: 1025px) {
+		flex: 0 0 42.5%;
+	}
+	@media screen and (max-width: 768px) {
+		flex: 0 0 50%;
+	}
+	@media screen and (max-width: 600px) {
+		flex: 0 0 100%;
+	}
+}
+
+.spinner {
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background: conic-gradient(#0000 10%, #ceee6f);
+	-webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
+	animation: spinner-zp9dbg 1s infinite linear;
+}
+
+@keyframes spinner-zp9dbg {
+	to {
+		transform: rotate(1turn);
+	}
+}
+
+div[role='dialog'] .lucide-x {
+	display: none;
+}
+
+.payments-table tbody tr:nth-child(even) td {
+	@apply bg-white;
+}
+.manager-table {
+	border-spacing: 4px 24px;
+	border-collapse: separate;
+}
+.manager-table tbody td,
+.manager-table th {
+	@apply bg-[#F9FAFB];
+}
+.manager-table th {
+	@apply h-[4.5rem];
+}
+.default-table thead th {
+	@apply text-black font-semibold h-[3.375rem] bg-[#F2F2F3] px-8;
+}
+.default-table tbody td {
+	@apply text-gray-900 h-16 px-8 border-b border-[#EAECF0] border-solid;
+}
+.default-table thead tr {
+	@apply border-b-0 hover:bg-[#F2F2F3];
+}
+.default-table thead tr th:first-child {
+	@apply rounded-l-[21.6px];
+}
+.default-table thead tr th:last-child {
+	@apply rounded-r-[21.6px];
+}
+.rdp-chevron {
+	fill: #ceee6f !important;
+}
+.rdp-selected button {
+	border-color: #ceee6f !important;
+}
+.rdp-today:not(.rdp-outside) {
+	color: #ceee6f !important;
+}
+.hero-gradient {
+	background: linear-gradient(90deg, #76dafb 0%, #ceee6f 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.marquee {
+	will-change: transform;
+	animation: marquee 15s linear infinite;
+	&:hover {
+		animation-play-state: paused;
+	}
+}
+.marquee2 {
+	will-change: transform;
+	animation: marquee2 20s linear infinite;
+	&:hover {
+		animation-play-state: paused;
+	}
+}
+
+@keyframes marquee {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(-50%);
+	}
+}
+
+@keyframes marquee2 {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background;
+	}
+}
+.data-\[state\=checked\]\:bg-primary[data-state='checked'] {
+	@apply !bg-[#27AE60] border-[#27AE60];
+}
+.data-\[state\=checked\]\:bg-primary[data-state='unchecked'] {
+	@apply border-[#777B82] bg-[#F4F4F4];
+}
+.data-\[state\=checked\]\:bg-primary[data-state='checked'] .lucide-check {
+	@apply stroke-white;
+}
+button[role='checkbox'] {
+	@apply size-6;
+}
+button[role='switch'] {
+	@apply h-6 w-10;
+}
+button[role='switch']
+	.data-\[state\=unchecked\]\:translate-x-0[data-state='unchecked'] {
+	@apply !h-[1.25rem] !w-[1.25rem] !bg-[#BBBCBE];
+}
+button[role='switch']
+	.data-\[state\=unchecked\]\:translate-x-0[data-state='checked'] {
+	@apply !h-[1.25rem] !w-[1.25rem] !bg-[#38C793] !translate-x-[0.85rem];
+}
+.data-\[state\=unchecked\]\:bg-input[data-state='unchecked'] {
+	@apply !bg-[#E2E4E9] !border-[#E2E4E9];
+}
+.data-\[state\=unchecked\]\:bg-input[data-state='checked'] {
+	@apply !bg-transparent !border-[#CBF5E5];
+}
+.tag {
+	@apply flex items-center gap-[6px] bg-white h-[2.025rem] rounded-full pl-[6.2px] pr-3 text-sm;
+}
+
+.tag span {
+	@apply text-[#444444] font-semibold;
+}
+
+.tag p {
+	@apply text-primary-black;
+}
+
+.track {
+	will-change: transform;
+	animation: marqueestats 32s linear infinite;
+}
+
+.mobile-track {
+	will-change: transform;
+	animation: marqueestats 10s linear infinite;
+}
+
+@keyframes marqueestats {
+	from {
+		transform: translate3d(0, 0, 0);
+	}
+	to {
+		transform: translate3d(-50%, 0, 0);
+	}
+}
+
+.rdp-range_start .rdp-day_button,
+.rdp-range_end .rdp-day_button {
+	@apply !bg-primary;
+}
+.rdp-range_start {
+	background: #f8ffe4 !important;
+	border-top-left-radius: 50%;
+	border-bottom-left-radius: 50%;
+}
+.rdp-range_end {
+	background: #f8ffe4 !important;
+	border-top-right-radius: 50%;
+	border-bottom-right-radius: 50%;
+}
+.rdp-range_middle {
+	@apply !bg-[#F8FFE4];
+}
+
+.\[\&_\.recharts-cartesian-axis-tick_text\]\:fill-muted-foreground
+	.recharts-cartesian-axis-tick
+	text {
+	fill: #0c0c0c !important;
+	font-weight: 500;
+}
+@keyframes fadeInUpSmooth {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.90);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fade-in-up-smooth {
+  animation: fadeInUpSmooth 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.marquee-reverse {
+	will-change: transform;
+	animation: marquee-reverse 15s linear infinite;
+	&:hover {
+		animation-play-state: paused;
+	}
+}
+
+@keyframes marquee-reverse {
+	from {
+		transform: translateY(-50%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+.marquee-fade {
+	mask-image: linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.6) 0%,
+		black 6%,
+		black 94%,
+		rgba(0, 0, 0, 0.6) 100%
+	);
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.6) 0%,
+		black 6%,
+		black 94%,
+		rgba(0, 0, 0, 0.6) 100%
+	);
+}
