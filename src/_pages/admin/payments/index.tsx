@@ -54,7 +54,7 @@ const AdminPayments = () => {
 	const { data, error, isLoading, isFetching, refetch } = useGetAdminPaymentsQuery({
 		page,
 		limit: PAGE_SIZE,
-		search: debouncedSearch,
+		q: debouncedSearch,
 		type: type === ALL ? undefined : type,
 		status: status === ALL ? undefined : status,
 		// Only send a range once both ends are set.

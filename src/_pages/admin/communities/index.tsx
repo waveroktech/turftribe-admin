@@ -99,7 +99,7 @@ const AdminCommunities = () => {
 	const { data, error, isLoading, isFetching, refetch } = useGetAdminCommunitiesQuery({
 		page,
 		limit: PAGE_SIZE,
-		search: debouncedSearch,
+		q: debouncedSearch,
 		status: status === ALL ? undefined : status,
 	});
 	const rows = data?.data ?? [];

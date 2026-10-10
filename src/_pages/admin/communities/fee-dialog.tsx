@@ -10,17 +10,21 @@ import { cancelButtonClass, errorMessage, inputClass, naira } from '../shared';
 export const describeFee = (commission: CommunityCommission | null) =>
 	commission ? `${naira(commission.platformFee)} per booking` : 'Not set';
 
+// PUT /commissions only accepts flat fees in this range.
+const MIN_FEE = 100;
+const MAX_FEE = 5000;
+
 const FeeDialog = ({ community, onClose }: { community: AdminCommunity; onClose: () => void }) => {
 	const current = community.commission;
 	const [platformFee, setPlatformFee] = useState(current ? String(current.platformFee) : '');
 	const [updateCommission, { isLoading }] = useUpdateCommunityCommissionMutation();
 
 	const fee = Number(platformFee);
-	const invalid = platformFee === '' || Number.isNaN(fee) || fee < 0;
+	const invalid = platformFee === '' || Number.isNaN(fee) || fee < MIN_FEE || fee > MAX_FEE;
 
 	const save = async () => {
 		try {
-			await updateCommission({ id: community.id, commission: { platformFee: fee } }).unwrap();
+			await updateCommission({ id: community.id, commission: { platformFee: fee }, exists: !!current }).unwrap();
 			toast.success(`Fee for ${community.name} is now ${naira(fee)} per booking.`);
 			onClose();
 		} catch (error) {
@@ -51,7 +55,8 @@ const FeeDialog = ({ community, onClose }: { community: AdminCommunity; onClose:
 					<input
 						type='number'
 						inputMode='decimal'
-						min={0}
+						min={MIN_FEE}
+						max={MAX_FEE}
 						step={50}
 						value={platformFee}
 						onChange={(e) => setPlatformFee(e.target.value)}
@@ -59,7 +64,9 @@ const FeeDialog = ({ community, onClose }: { community: AdminCommunity; onClose:
 						className={inputClass}
 					/>
 					{invalid && platformFee !== '' && (
-						<span className='mt-1 block text-xs text-danger'>Enter ₦0 or more.</span>
+						<span className='mt-1 block text-xs text-danger'>
+							Enter between {naira(MIN_FEE)} and {naira(MAX_FEE)}.
+						</span>
 					)}
 				</label>
 

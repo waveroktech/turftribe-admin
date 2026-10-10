@@ -2,7 +2,7 @@
 
 Platform backoffice for TurfTribe: overview dashboard, communities (status and commission), users, payments and sports.
 
-Only accounts whose `role` is `admin` or `superadmin` can sign in. The UI check mirrors the backend's `PlatformAdminGuard`, which is the real gate on every `/admin/*` endpoint. See [docs/admin-backend-contract.md](docs/admin-backend-contract.md) for the API these pages expect.
+Only accounts whose platform role (`admin` or `superadmin`) grants backoffice permissions can sign in, and each page needs its own permission. The app reads them with `usePermissions()`; the backend enforces the same permissions on every request. See [docs/admin-backend-contract.md](docs/admin-backend-contract.md) for the endpoints and permissions.
 
 ## Development
 
