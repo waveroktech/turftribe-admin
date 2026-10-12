@@ -25,8 +25,9 @@ export interface User {
 	completionPercent: string;
 	isProfileCompleted: true;
 	communityManaged: string;
-	// 'member' | 'manager' | 'staff'. Staff are users given a role under
-	// Accounts & Settings > Access control.
+	// 'member' | 'manager' | 'staff' | 'superadmin'. Staff are users given a
+	// role under Accounts & Settings > Access control. Only 'superadmin' may
+	// use the backoffice (see isSuperAdmin in lib/auth).
 	currentUserType?: string;
 	staffRole?: { id: string; name: string; permissions: Permission[] } | null;
 	// Pages a staff user may open; null for owners and players (unrestricted).

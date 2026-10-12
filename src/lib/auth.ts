@@ -33,3 +33,10 @@ export async function deleteAuthCookie(
 		return { success: false, error: 'Failed to delete cookie' };
 	}
 }
+
+// The backoffice is for superadmins only. Every gate (sign-in, withAuth,
+// the dashboard layout) asks this; the backend still enforces its own checks.
+export const SUPERADMIN_USER_TYPE = 'superadmin';
+
+export const isSuperAdmin = (user: { currentUserType?: string } | null | undefined) =>
+	user?.currentUserType === SUPERADMIN_USER_TYPE;

@@ -14,8 +14,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 	const pathname = usePathname();
 	const { can, hasBackofficeAccess } = usePermissions();
 
-	// Anyone without backoffice permissions is sent to sign in, and a page
-	// the user's role doesn't cover sends them to the first one it does.
+	// Anyone who isn't a superadmin is sent to sign in, and a page the user
+	// can't open sends them to the first one they can.
 	// The backend refuses their requests regardless.
 	const page = linkForPath(pathname);
 	const allowed = hasBackofficeAccess && (!page || can(page.permission));
