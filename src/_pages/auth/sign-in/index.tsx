@@ -5,13 +5,12 @@ import { useLoginMutation } from '@/features/auth/authApi';
 import { useAppDispatch } from '@/lib/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { setUser } from '@/features/auth/authSlice';
-import { setAuthCookie } from '@/lib/auth';
+import { isSuperAdmin, setAuthCookie } from '@/lib/auth';
 import { icons } from '@/components/icons/icons';
 import { z } from 'zod';
 import { Form } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { ADMIN_HOME } from '@/lib/admin';
-import { hasBackofficeAccess } from '@/hooks/usePermissions';
 
 import AppInput from '@/components/ui/app-input';
 import LoadingButton from '@/components/ui/loading-button';
@@ -40,9 +39,9 @@ const SignIn = () => {
 		try {
 			const res = await login(data).unwrap();
 
-			// Only users with backoffice permissions get a session here. The
-			// backend rejects everyone else's backoffice requests regardless.
-			if (!hasBackofficeAccess(res?.data)) {
+			// Only superadmins get a session here. The backend rejects
+			// everyone else's backoffice requests regardless.
+			if (!isSuperAdmin(res?.data)) {
 				toast.error("This account doesn't have backoffice access.");
 				return;
 			}
