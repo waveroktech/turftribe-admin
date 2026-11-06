@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { selectUser, setSignUpSuccess, setUser } from '@/features/auth/authSlice';
 import { deleteAuthCookie } from '@/lib/auth';
 import { cn } from '@/lib/utils';
-import { adminSidebarLinks, linkForPath } from '@/lib/admin';
+import { ADMIN_LINK_GROUPS, adminSidebarLinks, linkForPath } from '@/lib/admin';
 import { usePermissions } from '@/hooks/usePermissions';
 import {
 	Sidebar,
@@ -90,51 +90,56 @@ const AppSidebar = () => {
 			</SidebarHeader>
 
 			<SidebarContent className='relative mt-4'>
-				<SidebarGroup className={cn(expanded ? 'px-3' : 'px-2')}>
-					<SidebarGroupLabel className='mb-1 px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/35'>
-						Backoffice
-					</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu className='gap-1'>
-							{links.map((link) => {
-								const active = link.href === activeHref;
-
-								return (
-									<SidebarMenuItem
-										key={link.name}
-										onClick={() => {
-											if (isMobile) toggleSidebar();
-										}}>
-										<SidebarMenuButton
-											asChild
-											isActive={active}
-											tooltip={link.name}
-											className={cn(
-												'group/link h-11 gap-3 rounded-xl px-3 text-[0.9375rem] transition-all duration-200 ease-out',
-												'focus-visible:ring-2 focus-visible:ring-brand/60',
-												active
-													? 'bg-brand font-semibold text-ink shadow-[0_8px_24px_-10px_hsl(var(--brand)/0.7)] hover:bg-brand hover:text-ink data-[active=true]:bg-brand data-[active=true]:text-ink'
-													: 'font-medium text-white/65 hover:bg-white/[0.06] hover:text-white',
-												!expanded && 'justify-center px-0'
-											)}>
-											<Link href={link.href} aria-current={active ? 'page' : undefined}>
-												<span
+				{ADMIN_LINK_GROUPS.map((group) => {
+					const groupLinks = links.filter((link) => link.group === group);
+					if (groupLinks.length === 0) return null;
+					return (
+						<SidebarGroup key={group} className={cn(expanded ? 'px-3' : 'px-2')}>
+							<SidebarGroupLabel className='mb-1 px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/35'>
+								{group}
+							</SidebarGroupLabel>
+							<SidebarGroupContent>
+								<SidebarMenu className='gap-1'>
+									{groupLinks.map((link) => {
+										const active = link.href === activeHref;
+		
+										return (
+											<SidebarMenuItem
+												key={link.name}
+												onClick={() => {
+													if (isMobile) toggleSidebar();
+												}}>
+												<SidebarMenuButton
+													asChild
+													isActive={active}
+													tooltip={link.name}
 													className={cn(
-														'grid shrink-0 place-items-center transition-opacity [&_svg]:h-5 [&_svg]:w-5',
-														active ? 'opacity-100' : 'opacity-60 group-hover/link:opacity-100'
+														'group/link h-11 gap-3 rounded-xl px-3 text-[0.9375rem] transition-all duration-200 ease-out',
+														'focus-visible:ring-2 focus-visible:ring-brand/60',
+														active
+															? 'bg-brand font-semibold text-ink shadow-[0_8px_24px_-10px_hsl(var(--brand)/0.7)] hover:bg-brand hover:text-ink data-[active=true]:bg-brand data-[active=true]:text-ink'
+															: 'font-medium text-white/65 hover:bg-white/[0.06] hover:text-white',
+														!expanded && 'justify-center px-0'
 													)}>
-													{active ? link.iconActive : link.icon}
-												</span>
-												{expanded && <span className='truncate'>{link.name}</span>}
-											</Link>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-								);
-							})}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
+													<Link href={link.href} aria-current={active ? 'page' : undefined}>
+														<span
+															className={cn(
+																'grid shrink-0 place-items-center transition-opacity [&_svg]:h-5 [&_svg]:w-5',
+																active ? 'opacity-100' : 'opacity-60 group-hover/link:opacity-100'
+															)}>
+															{active ? link.iconActive : link.icon}
+														</span>
+														{expanded && <span className='truncate'>{link.name}</span>}
+													</Link>
+												</SidebarMenuButton>
+											</SidebarMenuItem>
+										);
+									})}
+								</SidebarMenu>
+							</SidebarGroupContent>
+						</SidebarGroup>
+					);
+				})}
 			</SidebarContent>
 
 			<SidebarFooter className={cn('pb-6 pt-3', expanded ? 'px-3' : 'px-2')}>

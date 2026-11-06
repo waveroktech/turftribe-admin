@@ -28,6 +28,7 @@ Users who signed in before `platformPermissions` existed must sign in again.
 | `platform:users` | Users and user detail |
 | `platform:payments` | Payments, and a user's recent payments |
 | `platform:sports` | Sports |
+| `platform:merch` | Merchandise: products, stock, orders, vendors, placements (new; add to the backend enum) |
 | `platform:payouts` | Approving game payouts (not in this app yet) |
 | `platform:subscriptions` | Subscription plans (not in this app yet) |
 
@@ -95,3 +96,57 @@ Amounts are in naira, as stored. "This month" and monthly buckets use
 3. Sign in and open each page.
 4. Cross-check one community: its `processed` on Communities must equal
    `collected` from `GET /communities/:id/bookings/summary`.
+
+## Merchandise (v1)
+
+None of these endpoints exist yet; the pages show "Waiting on the backend"
+until they do. Shapes are in `src/features/merch/types.ts`. Amounts are in
+naira; commission rates are percentages (`15` = 15%).
+
+**Vendor scoping.** Every product, variant, order, payout and audit row
+carries a `vendorId`. A caller with `platform:merch` sees every vendor; a
+vendor user (v1.5) will see only rows with their own `vendorId`, enforced on
+the backend. That's why these endpoints take no `view=platform`.
+
+| Page | Request | Notes |
+| --- | --- | --- |
+| Vendors | `GET /merch/vendors` → `{ data: Vendor[] }` | Includes all-time `gmv`, `commission`, `productsCount` |
+| | `POST /merch/vendors`, `PUT /merch/vendors/:id` (`VendorInput`) | `paystackSubaccountCode` is `ACCT_…`; `null` blocks checkout |
+| Products | `GET /merch/products?q&vendorId&status&category&page&limit` → `{ data, pagination }` | `q` matches name and SKU |
+| | `POST /merch/products`, `PUT /merch/products/:id` (`ProductInput`) | Variants are sent in full; match by `id`, create rows without one, delete missing ones |
+| | `POST /merch/products/:id/duplicate` → `Product` | Copy as `draft`, SKUs suffixed `-COPY` |
+| | `PATCH /merch/products/:id/status` `{ status: 'draft' \| 'live' \| 'hidden' \| 'archived' }` | |
+| | `GET /merch/products/:id/audit` → `{ data: AuditEntry[] }` | Newest first |
+| Stock & prices | `GET /merch/variants?vendorId&q` → `{ data: VariantRow[] }` | Every non-archived variant |
+| | `PATCH /merch/variants` `{ updates: [{ id, price?, quantity? }] }` | All-or-nothing; one audit entry per changed field |
+| Placements | `GET /merch/placements` → `{ data: Placement[] }`, `PUT /merch/placements/:key` `{ enabled }` | Keys: `game_confirmation`, `game_details`, `player_home`, `venue_booking` |
+| Orders | `GET /merch/orders?q&vendorId&status&from&to&page&limit` → `{ data, pagination, summary }` | `q` matches reference, buyer and SKU; newest first; `limit` up to 1000 (CSV export and statements) |
+| | `PATCH /merch/orders/:id/status` `{ status, note? }` | See transitions below |
+
+**Rules the backend owns** (the UI reflects them but doesn't enforce them):
+
+- **Status.** `sold_out` is derived: a `live` product whose variants are all
+  at 0. The player app hides sold-out variants, and hides the product once
+  every variant is sold out. An inactive vendor hides all its products.
+- **Commission.** `product.commissionRate ?? vendor.commissionRate`, captured
+  on the order at payment so later rate changes don't rewrite history.
+- **Stock.** Reserve on checkout, decrement on payment, restore on
+  cancellation. `reserved` on a variant is the count held by unpaid checkouts.
+  Price and quantity changes, from any route, write an `AuditEntry` with the
+  actor.
+- **Orders.** `awaiting_confirmation → confirmed → dispatched → delivered`;
+  `cancelled` is allowed from `awaiting_confirmation` or `confirmed` and
+  refunds the buyer in full. An order still awaiting confirmation at
+  `confirmBy` is cancelled and refunded automatically. Each change notifies
+  the buyer and appends to `history`. New orders email the vendor's
+  `contactEmail` (SES) with the SKUs.
+- **Summary.** `count`, `gmv` (sum of `total`) and `commission` cover paid
+  orders matching the filters, excluding cancelled ones. Dates use
+  `Africa/Lagos`.
+- **Low stock.** Notify admins when a variant's `quantity` drops below its
+  `lowStockThreshold`.
+- **Payment split.** Paystack split with the vendor's subaccount. Confirm with
+  Paystack how refunds behave on split transactions before building
+  cancellation; if the vendor share can't be reversed cleanly, hold funds and
+  settle after delivery instead (the PRD's fallback).
+

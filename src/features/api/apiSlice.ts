@@ -9,6 +9,7 @@ import { BASE_URL } from "@/lib/constants";
 import { deleteUserToken, getUserToken } from "@/lib/session";
 import { logOut } from "../auth/authSlice";
 import { toast } from "sonner";
+import { isMerchDemoRequest, merchDemoQuery } from "../merch/demo";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -35,6 +36,9 @@ const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  // Merchandise endpoints aren't live yet; in demo mode they're served locally.
+  if (isMerchDemoRequest(args)) return merchDemoQuery(args);
+
   const result: any = await baseQuery(args, api, extraOptions);
 
   if (
@@ -56,6 +60,6 @@ const baseQueryWithReauth: BaseQueryFn<
 //  Base API slice with tag types for automatic cache invalidation
 export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["admin"],
+  tagTypes: ["admin", "merch"],
   endpoints: () => ({}),
 });
