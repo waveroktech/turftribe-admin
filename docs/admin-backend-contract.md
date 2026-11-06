@@ -29,6 +29,7 @@ Users who signed in before `platformPermissions` existed must sign in again.
 | `platform:payments` | Payments, and a user's recent payments |
 | `platform:sports` | Sports |
 | `platform:merch` | Merchandise: products, stock, orders, vendors, placements (new; add to the backend enum) |
+| `platform:venues` | Venues: organisations, places, locations, calendar, bookings, clusters, venue fee (new; add to the backend enum) |
 | `platform:payouts` | Approving game payouts (not in this app yet) |
 | `platform:subscriptions` | Subscription plans (not in this app yet) |
 
@@ -150,3 +151,68 @@ the backend. That's why these endpoints take no `view=platform`.
   cancellation; if the vendor share can't be reversed cleanly, hold funds and
   settle after delivery instead (the PRD's fallback).
 
+## Venues (v1)
+
+None of these endpoints exist yet; the pages show "Waiting on the backend"
+until they do, and in development they're served by
+`src/features/venues/demo.ts` (`NEXT_PUBLIC_VENUES_DEMO=true|false`
+overrides). Shapes are in `src/features/venues/types.ts`. Amounts are in
+naira; fee rates are percentages (`10` = 10%). Times are stored in UTC and
+days are counted in `Africa/Lagos`.
+
+**Model.** A venue is an organisation with `type: 'venue'` (communities
+become `type: 'community'` organisations later; a user can belong to many and
+switches between them). It owns **Places** (a site, with address text and
+optional coordinates) and **Locations** (one bookable pitch or court, under a
+place or standalone). Each Location has its own **Slots**. There's no
+country/state/LGA hierarchy: coordinates plus admin-defined clusters.
+
+**TurfTriibe is the first venue owner.** Create its organisation with
+`platformOwned: true` (the Venues page has a "Set up TurfTriibe" button that
+does this when none exists, or seed it). There can be only one: a second
+`POST` with `platformOwned: true` returns 409. It has no owner users; anyone
+with `platform:venues` manages it. Its bookings carry `fee: 0` and settle in
+full to TurfTriibe's main Paystack balance, so they're reported as
+`ownVenueRevenue`, not fees.
+
+| Page | Request | Notes |
+| --- | --- | --- |
+| Venues | `GET /venues/overview` → `VenueOverview` | Also feeds the dashboard strip |
+| | `GET /venues/organisations` → `{ data: VenueOrganisation[] }` | Platform-owned first; includes `stats` |
+| | `GET /venues/organisations/:id`, `POST /venues/organisations`, `PUT /venues/organisations/:id` (`VenueOrganisationInput`) | `ownerEmail` adds an owner (invite if no account). `platformOwned` is fixed at creation |
+| Venue | `GET /venues/places?organisationId`, `POST /venues/places`, `PUT /venues/places/:id` (`PlaceInput`) | |
+| | `GET /venues/locations?organisationId`, `POST /venues/locations`, `PUT /venues/locations/:id` (`LocationInput`) | Response includes `scheduledUntil` (last slot's end) |
+| | `POST /venues/locations/:id/schedule` (`ScheduleInput`) → `{ created, skipped }` | Skips any slot overlapping an existing one, so it's safe to re-run |
+| Calendar | `GET /venues/slots?organisationId&locationIds&from&to` → `{ data: Slot[] }` | `locationIds` comma-separated; `from`/`to` are inclusive dates. `status` is derived (see below); `booking` included |
+| | `PATCH /venues/slots` (`SlotAction`) → `{ updated, skipped }` | `reprice`/`block`: open upcoming slots only. `reopen`: blocked or cancelled upcoming slots. `cancel`: cancels the whole booking behind each slot (upcoming only), refunds online payments, `reopen` decides whether its slots go back on sale |
+| | `POST /venues/slots/block-days` `{ locationIds, dates, reason }` → `{ updated, skipped }` | Blocks every open slot on those days |
+| | `POST /venues/bookings` (`ManualBookingInput`) → `{ created, skippedWeeks }` | Manual (walk-in/phone) booking of back-to-back open slots on one location; `weeks > 1` repeats weekly and skips weeks where any slot is taken. No fee |
+| Bookings | `GET /venues/bookings?q&organisationId&status&source&from&to&page&limit` → `{ data, pagination, summary }` | `q` matches reference, booker and location; newest slot first |
+| Clusters & fees | `GET /venues/settings`, `PUT /venues/settings` `{ defaultFeeRate }` | Per-venue override is `feeRate` on the organisation |
+| | `GET /venues/clusters`, `POST`, `PUT /venues/clusters/:id` (`ClusterInput`) | |
+| | `GET /venues/areas`, `POST`, `PUT /venues/areas/:id` (`AreaInput`) | Seed Lekki, Ikoyi, Victoria Island, Ikeja, Opebi, Yaba |
+
+**Rules the backend owns** (the UI reflects them but doesn't enforce them):
+
+- **Slot status.** Stored as `open`, `booked`, `blocked` or `cancelled`. A
+  booked slot reads `in_progress` from its start and `completed` from its
+  end; completed and in-progress slots are immutable from every route. A slot
+  becomes `booked` only after Paystack confirms payment (or a manual
+  booking). Hold slots during checkout with a short Redis lock so two
+  bookers can't pay for the same slot.
+- **Booking status.** `upcoming`, `in_progress`, `completed` from its slots'
+  times; `cancelled` once cancelled.
+- **Fees.** `fee = amount × (venue.feeRate ?? settings.defaultFeeRate) / 100`
+  on online bookings at partner venues, captured at payment so later changes
+  don't rewrite history, and taken through a Paystack split with the venue's
+  subaccount (no subaccount = no online booking). Manual bookings and
+  platform-owned venues: `fee = 0`.
+- **Summary.** `count` excludes cancelled bookings; `gmv` and `fees` cover
+  online ones; `manualValue` sums manual ones.
+- **Overview.** "This month" by slot start in `Africa/Lagos`.
+  `peakUtilisation` = booked ÷ (open + booked) for slots starting 17:00–22:00
+  over the last 28 days.
+- **Discovery.** A Location is searchable only with coordinates (its own, else
+  its place's) and only inside an active cluster. Distance is haversine,
+  server-side; default radius 10 km. Inactive organisations or locations are
+  hidden.
