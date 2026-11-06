@@ -1,7 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import * as RechartsPrimitive from 'recharts';
 import {
 	ArrowDownToLine,
@@ -89,6 +89,45 @@ const MonthlyChart = ({ points, metric }: { points: ChartPoint[]; metric: 'proce
 					activeDot={{ r: 5, fill: SERIES_COLOR, stroke: '#fff', strokeWidth: 2 }}
 				/>
 			</AreaChart>
+		</ChartContainer>
+	);
+};
+
+const SignupsTooltip = ({ active, payload }: React.ComponentProps<typeof RechartsPrimitive.Tooltip>) => {
+	if (!active || !payload?.length) return null;
+	const point = payload[0].payload as ChartPoint;
+
+	return (
+		<div className='min-w-[9rem] rounded-xl bg-ink px-3 py-2 shadow-lg'>
+			<p className='text-[11px] font-medium text-white/60'>{point.month}</p>
+			<p className='mt-1 flex justify-between gap-4 text-sm font-bold text-brand'>
+				<span>New users</span>
+				<span className='tabular-nums'>{count(point.newUsers)}</span>
+			</p>
+		</div>
+	);
+};
+
+// Sign-ups are discrete monthly counts, so bars rather than an area.
+const SignupsChart = ({ points }: { points: ChartPoint[] }) => {
+	const config = { newUsers: { label: 'New users', color: SERIES_COLOR } } satisfies ChartConfig;
+
+	return (
+		<ChartContainer config={config} className='aspect-auto h-[14rem] w-full'>
+			<BarChart data={points} margin={{ left: 4, right: 12, top: 8, bottom: 0 }}>
+				<CartesianGrid vertical={false} strokeDasharray='4 4' />
+				<XAxis dataKey='label' tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
+				<YAxis
+					tickLine={false}
+					axisLine={false}
+					width={40}
+					fontSize={11}
+					allowDecimals={false}
+					tickFormatter={(value: number) => count(value)}
+				/>
+				<ChartTooltip cursor={{ fill: '#0C0C0C', fillOpacity: 0.04 }} content={<SignupsTooltip />} />
+				<Bar dataKey='newUsers' fill={SERIES_COLOR} radius={[6, 6, 0, 0]} isAnimationActive={false} />
+			</BarChart>
 		</ChartContainer>
 	);
 };
@@ -224,6 +263,20 @@ const AdminDashboard = () => {
 								)}
 							</Panel>
 						</div>
+
+						<Panel
+							title='User onboarding'
+							subtitle={`New sign-ups per month, last 12 months${
+								points.length ? ` · ${count(points.reduce((sum, p) => sum + p.newUsers, 0))} total` : ''
+							}`}>
+							{isLoading ? (
+								<Skeleton className='h-[14rem] w-full' />
+							) : points.some((p) => p.newUsers > 0) ? (
+								<SignupsChart points={points} />
+							) : (
+								<EmptyRows title='No sign-ups yet' info='Monthly sign-ups appear once users join.' />
+							)}
+						</Panel>
 					</>
 				)}
 			</div>
