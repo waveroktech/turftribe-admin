@@ -20,6 +20,7 @@ export const PLATFORM_PERMISSIONS = [
 	'platform:payouts',
 	'platform:subscriptions',
 	'platform:sports',
+	'platform:merch',
 ] as const;
 
 export type PlatformPermission = (typeof PLATFORM_PERMISSIONS)[number];

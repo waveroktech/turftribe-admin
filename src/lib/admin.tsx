@@ -1,25 +1,45 @@
-import { Building2, CreditCard, LayoutDashboard, Trophy, Users } from 'lucide-react';
+import {
+	Boxes,
+	Building2,
+	CreditCard,
+	LayoutDashboard,
+	Package,
+	ShoppingBag,
+	Store,
+	Trophy,
+	Users,
+} from 'lucide-react';
 import type { PlatformPermission } from './permissions';
 
 export const ADMIN_HOME = '/admin';
+export const MERCH_HOME = '/admin/merch';
 
 const icon = (Icon: typeof LayoutDashboard) => <Icon strokeWidth={2} />;
+
+export type AdminLinkGroup = 'Backoffice' | 'Merchandise';
 
 // Each page needs the platform permission its data comes from. The sidebar
 // hides links the user can't open, and the layout blocks the page itself.
 export const adminSidebarLinks: {
 	name: string;
 	href: string;
+	group: AdminLinkGroup;
 	permission: PlatformPermission;
 	icon: React.ReactNode;
 	iconActive: React.ReactNode;
 }[] = [
-	{ name: 'Dashboard', href: ADMIN_HOME, permission: 'platform:overview', icon: icon(LayoutDashboard), iconActive: icon(LayoutDashboard) },
-	{ name: 'Communities', href: '/admin/communities', permission: 'platform:communities', icon: icon(Building2), iconActive: icon(Building2) },
-	{ name: 'Users', href: '/admin/users', permission: 'platform:users', icon: icon(Users), iconActive: icon(Users) },
-	{ name: 'Payments', href: '/admin/payments', permission: 'platform:payments', icon: icon(CreditCard), iconActive: icon(CreditCard) },
-	{ name: 'Sports', href: '/admin/sports', permission: 'platform:sports', icon: icon(Trophy), iconActive: icon(Trophy) },
+	{ name: 'Dashboard', href: ADMIN_HOME, group: 'Backoffice', permission: 'platform:overview', icon: icon(LayoutDashboard), iconActive: icon(LayoutDashboard) },
+	{ name: 'Communities', href: '/admin/communities', group: 'Backoffice', permission: 'platform:communities', icon: icon(Building2), iconActive: icon(Building2) },
+	{ name: 'Users', href: '/admin/users', group: 'Backoffice', permission: 'platform:users', icon: icon(Users), iconActive: icon(Users) },
+	{ name: 'Payments', href: '/admin/payments', group: 'Backoffice', permission: 'platform:payments', icon: icon(CreditCard), iconActive: icon(CreditCard) },
+	{ name: 'Sports', href: '/admin/sports', group: 'Backoffice', permission: 'platform:sports', icon: icon(Trophy), iconActive: icon(Trophy) },
+	{ name: 'Products', href: MERCH_HOME, group: 'Merchandise', permission: 'platform:merch', icon: icon(ShoppingBag), iconActive: icon(ShoppingBag) },
+	{ name: 'Stock & prices', href: `${MERCH_HOME}/stock`, group: 'Merchandise', permission: 'platform:merch', icon: icon(Boxes), iconActive: icon(Boxes) },
+	{ name: 'Orders', href: `${MERCH_HOME}/orders`, group: 'Merchandise', permission: 'platform:merch', icon: icon(Package), iconActive: icon(Package) },
+	{ name: 'Vendors', href: `${MERCH_HOME}/vendors`, group: 'Merchandise', permission: 'platform:merch', icon: icon(Store), iconActive: icon(Store) },
 ];
+
+export const ADMIN_LINK_GROUPS: AdminLinkGroup[] = ['Backoffice', 'Merchandise'];
 
 // The most specific href wins, so /admin/users matches "Users" rather than
 // the /admin dashboard, and nested routes keep their parent.

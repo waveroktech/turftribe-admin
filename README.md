@@ -1,6 +1,6 @@
 # TurfTribe Admin
 
-Platform backoffice for TurfTribe: overview dashboard, communities (status and commission), users, payments and sports.
+Platform backoffice for TurfTribe: overview dashboard, communities (status and commission), users, payments, sports and merchandise.
 
 Only accounts whose platform role (`admin` or `superadmin`) grants backoffice permissions can sign in, and each page needs its own permission. The app reads them with `usePermissions()`; the backend enforces the same permissions on every request. See [docs/admin-backend-contract.md](docs/admin-backend-contract.md) for the endpoints and permissions.
 
@@ -23,3 +23,7 @@ The API base URL comes from `NEXT_PUBLIC_API_URL` and falls back to `https://api
 | `/admin/users` | Users and user detail sheet |
 | `/admin/payments` | Platform-wide payments |
 | `/admin/sports` | Sport catalogue and editor |
+| `/admin/merch` | Merchandise products, editor, change history and placements |
+| `/admin/merch/stock` | Bulk stock and price editing, CSV import/export |
+| `/admin/merch/orders` | Merchandise orders, status updates, export |
+| `/admin/merch/vendors` | Vendors, commission, Paystack subaccount, statements |
