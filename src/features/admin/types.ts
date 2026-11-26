@@ -188,6 +188,8 @@ export type AdminSport = {
 	key: string;
 	name: string;
 	isActive: boolean;
+	/** Public S3 url of the sport's background image, or null for none. */
+	backgroundImage: string | null;
 	formats: SportFormat[];
 	stats: SportStat[];
 	positions: SportPosition[];
@@ -195,3 +197,16 @@ export type AdminSport = {
 };
 
 export type SportInput = Omit<AdminSport, 'id' | 'communitiesCount'>;
+
+/** Presigned S3 upload from POST /sports/upload-url. */
+export type SportImageUpload = {
+	uploadUrl: string;
+	method: 'PUT';
+	headers: Record<string, string>;
+	/** Send this as `backgroundImage` once the PUT succeeds. */
+	fileUrl: string;
+	key: string;
+	expiresIn: number;
+	fileName: string;
+	contentType: string;
+};

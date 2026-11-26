@@ -12,6 +12,7 @@ import {
 	AdminUsersParams,
 	CommunityCommission,
 	CommunityStatus,
+	SportImageUpload,
 	SportInput,
 } from './types';
 
@@ -90,6 +91,11 @@ export const adminApi = apiSlice.injectEndpoints({
 			query: ({ id, body }) => ({ url: `/sports/${id}`, method: 'PUT', body }),
 			invalidatesTags: ['admin'],
 		}),
+		// Step 1 of a background image upload; the client then PUTs the file to S3.
+		getSportImageUploadUrl: builder.mutation<SportImageUpload, { fileName: string; contentType: string }>({
+			query: (body) => ({ url: '/sports/upload-url', method: 'POST', body }),
+			transformResponse: (res: { data: SportImageUpload }) => res.data,
+		}),
 	}),
 });
 
@@ -104,4 +110,5 @@ export const {
 	useGetAdminSportsQuery,
 	useCreateSportMutation,
 	useUpdateSportMutation,
+	useGetSportImageUploadUrlMutation,
 } = adminApi;

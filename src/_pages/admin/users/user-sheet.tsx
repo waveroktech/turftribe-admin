@@ -1,6 +1,5 @@
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { useGetAdminPaymentsQuery, useGetAdminUserQuery } from '@/features/admin/adminApi';
-import { usePermissions } from '@/hooks/usePermissions';
 import { AdminUser } from '@/features/admin/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
@@ -24,13 +23,13 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 const UserSheet = ({ user, onClose }: { user: AdminUser; onClose: () => void }) => {
 	// The list row renders the header straight away; the rest loads in.
 	const { data: detail, error, isLoading } = useGetAdminUserQuery(user.id);
-	// Their payments come from the payments list, so they need that permission.
-	const { can } = usePermissions();
-	const canSeePayments = can('platform:payments');
-	const { data: payments } = useGetAdminPaymentsQuery(
-		{ userId: user.id, limit: RECENT_PAYMENTS },
-		{ skip: !canSeePayments }
-	);
+	// Their payments come from the payments list. If the backend refuses that
+	// request, the section is left out rather than shown as an error.
+	const { data: payments, error: paymentsError } = useGetAdminPaymentsQuery({
+		userId: user.id,
+		limit: RECENT_PAYMENTS,
+	});
+	const canSeePayments = !paymentsError;
 	const recentPayments = payments?.data ?? [];
 	const name = fullName(user.firstName, user.lastName);
 

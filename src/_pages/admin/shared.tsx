@@ -49,7 +49,7 @@ export const AdminQueryState = ({
 	const info = pending
 		? `${endpoint} isn’t live yet. This fills in once it ships.`
 		: denied
-			? 'Backoffice data is limited to platform admins.'
+			? 'Your account isn’t allowed to view this.'
 			: ((error as QueryError)?.data?.message ?? 'Something went wrong. Try again in a moment.');
 
 	return (

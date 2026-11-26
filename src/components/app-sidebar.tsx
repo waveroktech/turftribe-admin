@@ -6,7 +6,6 @@ import { selectUser, setSignUpSuccess, setUser } from '@/features/auth/authSlice
 import { deleteAuthCookie } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { ADMIN_LINK_GROUPS, adminSidebarLinks, linkForPath } from '@/lib/admin';
-import { usePermissions } from '@/hooks/usePermissions';
 import {
 	Sidebar,
 	SidebarContent,
@@ -34,8 +33,7 @@ const AppSidebar = () => {
 	const pathname = usePathname();
 	const dispatch = useAppDispatch();
 	const user = useAppSelector(selectUser);
-	const { can } = usePermissions();
-	const links = adminSidebarLinks.filter((link) => can(link.permission));
+	const links = adminSidebarLinks;
 	const expanded = open || isMobile;
 
 	const activeHref = linkForPath(pathname)?.href;
