@@ -10,7 +10,6 @@ Any account can sign in. The app does no authorization of its own: the backend e
 npm install
 npm run dev
 ```
-
 The API base URL comes from `NEXT_PUBLIC_API_URL` and falls back to `https://api.turftriibe.com`.
 
 ## Routes
