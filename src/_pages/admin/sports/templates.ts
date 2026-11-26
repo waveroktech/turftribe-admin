@@ -1,8 +1,11 @@
 import { SportInput } from '@/features/admin/types';
 
+// Templates carry no image; picking one keeps whatever image is already chosen.
+export type SportTemplate = Omit<SportInput, 'backgroundImage'>;
+
 // Starting points for a new sport. Admins edit everything after picking one;
 // the backend is the source of truth once saved.
-export const SPORT_TEMPLATES: SportInput[] = [
+export const SPORT_TEMPLATES: SportTemplate[] = [
 	{
 		key: 'football',
 		name: 'Football',
@@ -91,6 +94,7 @@ export const BLANK_SPORT: SportInput = {
 	key: '',
 	name: '',
 	isActive: true,
+	backgroundImage: null,
 	formats: [],
 	stats: [],
 	positions: [],

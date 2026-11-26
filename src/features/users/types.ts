@@ -26,16 +26,15 @@ export interface User {
 	isProfileCompleted: true;
 	communityManaged: string;
 	// 'member' | 'manager' | 'staff' | 'superadmin'. Staff are users given a
-	// role under Accounts & Settings > Access control. Only 'superadmin' may
-	// use the backoffice (see isSuperAdmin in lib/auth).
+	// role under Accounts & Settings > Access control.
 	currentUserType?: string;
 	staffRole?: { id: string; name: string; permissions: Permission[] } | null;
 	// Pages a staff user may open; null for owners and players (unrestricted).
 	permissions?: Permission[] | null;
 	// Platform role: 'admin' | 'superadmin'; null for everyone else.
 	role?: string | null;
-	// Backoffice permissions the platform role grants. Read through
-	// usePermissions().
+	// Backoffice permissions the platform role grants. The app doesn't gate on
+	// these; the backend enforces them on every request.
 	platformPermissions?: PlatformPermission[];
 	isKycCompleted: boolean;
 	banks: {

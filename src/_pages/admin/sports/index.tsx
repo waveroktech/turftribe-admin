@@ -21,9 +21,21 @@ const SportCard = ({ sport, onEdit }: { sport: AdminSport; onEdit: () => void })
 		<button
 			onClick={onEdit}
 			className={cn(
-				'flex min-w-0 flex-col gap-4 rounded-3xl border border-black/[0.06] bg-surface-raised p-5 text-left shadow-card transition-shadow hover:shadow-card-hover',
+				'flex min-w-0 flex-col gap-4 overflow-hidden rounded-3xl border border-black/[0.06] bg-surface-raised p-5 text-left shadow-card transition-shadow hover:shadow-card-hover',
 				!sport.isActive && 'opacity-70'
 			)}>
+			{sport.backgroundImage ? (
+				// eslint-disable-next-line @next/next/no-img-element -- S3 bucket host varies by environment
+				<img
+					src={sport.backgroundImage}
+					alt=''
+					className='-mx-5 -mt-5 aspect-[16/7] w-[calc(100%+2.5rem)] max-w-none object-cover'
+				/>
+			) : (
+				<div className='-mx-5 -mt-5 grid aspect-[16/7] w-[calc(100%+2.5rem)] place-items-center bg-black/[0.03] text-xs text-subtle'>
+					No background image
+				</div>
+			)}
 			<div className='flex items-start justify-between gap-3'>
 				<div className='flex items-center gap-3'>
 					<span className='grid h-10 w-10 place-items-center rounded-2xl bg-brand-soft text-ink'>

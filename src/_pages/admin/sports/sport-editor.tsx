@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import LoadingButton from '@/components/ui/loading-button';
 import { SheetCloseButton, cancelButtonClass, errorMessage } from '../shared';
 import { BLANK_SPORT, SPORT_TEMPLATES, slugify } from './templates';
+import BackgroundImageField from './background-image-field';
 
 export const MAX_HEADLINE_STATS = 3;
 
@@ -98,6 +99,7 @@ const SportEditor = ({
 					key: sport.key,
 					name: sport.name,
 					isActive: sport.isActive,
+					backgroundImage: sport.backgroundImage ?? null,
 					formats: sport.formats,
 					stats: sport.stats,
 					positions: sport.positions,
@@ -106,6 +108,7 @@ const SportEditor = ({
 	);
 	// A new sport's key follows its name until the admin edits the key itself.
 	const [keyTouched, setKeyTouched] = useState(editing);
+	const [uploadingImage, setUploadingImage] = useState(false);
 
 	const [createSport, { isLoading: creating }] = useCreateSportMutation();
 	const [updateSport, { isLoading: updating }] = useUpdateSportMutation();
@@ -177,7 +180,7 @@ const SportEditor = ({
 											key={template.key}
 											type='button'
 											onClick={() => {
-												setDraft(template);
+												setDraft((current) => ({ ...template, backgroundImage: current.backgroundImage }));
 												setKeyTouched(true);
 											}}
 											className={cn(
@@ -232,6 +235,13 @@ const SportEditor = ({
 								</p>
 							)}
 						</section>
+
+						<BackgroundImageField
+							value={draft.backgroundImage}
+							onChange={(url) => set('backgroundImage', url)}
+							onUploadingChange={setUploadingImage}
+							sportName={draft.name}
+						/>
 
 						<Section
 							title='Game formats'
@@ -413,7 +423,7 @@ const SportEditor = ({
 						<LoadingButton
 							variant='secondary'
 							loading={creating || updating}
-							disabled={!!error}
+							disabled={!!error || uploadingImage}
 							onClick={save}
 							className='flex-1'>
 							{editing ? 'Save changes' : 'Add sport'}

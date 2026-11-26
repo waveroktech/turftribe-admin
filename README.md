@@ -2,7 +2,7 @@
 
 Platform backoffice for TurfTribe: overview dashboard, communities (status and commission), users, payments, sports and merchandise.
 
-Only accounts whose platform role (`admin` or `superadmin`) grants backoffice permissions can sign in, and each page needs its own permission. The app reads them with `usePermissions()`; the backend enforces the same permissions on every request. See [docs/admin-backend-contract.md](docs/admin-backend-contract.md) for the endpoints and permissions.
+Any account can sign in. The app does no authorization of its own: the backend enforces platform permissions on every request, and a refused section shows a "no access" state. See [docs/admin-backend-contract.md](docs/admin-backend-contract.md) for the endpoints and permissions.
 
 ## Development
 

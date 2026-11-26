@@ -5,7 +5,7 @@ import { useLoginMutation } from '@/features/auth/authApi';
 import { useAppDispatch } from '@/lib/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { setUser } from '@/features/auth/authSlice';
-import { isSuperAdmin, setAuthCookie } from '@/lib/auth';
+import { setAuthCookie } from '@/lib/auth';
 import { icons } from '@/components/icons/icons';
 import { z } from 'zod';
 import { Form } from '@/components/ui/form';
@@ -38,13 +38,6 @@ const SignIn = () => {
 	const onSubmit = async (data: z.infer<typeof formSchema>) => {
 		try {
 			const res = await login(data).unwrap();
-
-			// Only superadmins get a session here. The backend rejects
-			// everyone else's backoffice requests regardless.
-			if (!isSuperAdmin(res?.data)) {
-				toast.error("This account doesn't have backoffice access.");
-				return;
-			}
 
 			await setAuthCookie('access-token', res?.data?.token);
 			localStorage.setItem('access-token', res?.data?.token);

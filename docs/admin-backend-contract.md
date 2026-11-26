@@ -11,15 +11,13 @@ backoffice. A platform role (`user.role`) grants platform permissions through
 `PLATFORM_ROLE_PERMISSIONS`; today `admin` and `superadmin` get all of them.
 `AuthGuard` enforces them on every request through `@RequirePermissions`.
 
-Login returns the granted list as `platformPermissions`. The app reads it
-through `usePermissions()` (`src/hooks/usePermissions.ts`):
+Login returns the granted list as `platformPermissions`, but the app does no
+authorization of its own. Any account can sign in and every page is shown; the
+backend alone decides what each request may do:
 
-- sign-in only starts a session when the list isn't empty;
-- the sidebar shows only the pages the user can open (`src/lib/admin.tsx`);
-- the layout redirects away from a page the user can't open;
-- the user sheet loads recent payments only with `platform:payments`.
-
-Users who signed in before `platformPermissions` existed must sign in again.
+- a section whose request is refused (401/403) shows the "no access" state
+  (`AdminQueryState` in `src/_pages/admin/shared.tsx`);
+- the user sheet leaves out recent payments when that request is refused.
 
 | Permission | Unlocks |
 | --- | --- |
@@ -54,6 +52,7 @@ matching permission. Lists take `page`, `limit` and `q` (search) and return
 | | `GET /users/:id?view=platform` | `platform:users` |
 | Payments | `GET /payments/history?view=platform&q&type&status&communityId&userId&from&to` | `platform:payments` |
 | Sports | `GET /sports`, `POST /sports`, `PUT /sports/:id` | `platform:sports` |
+| | `POST /sports/upload-url` `{ fileName, contentType }` → presigned S3 `PUT` | `platform:sports` |
 
 ## How the numbers are counted
 
@@ -84,6 +83,11 @@ Amounts are in naira, as stored. "This month" and monthly buckets use
 - **Sports.** A sport's `key` is fixed once created, because communities
   store it as their `category`. At most 3 headline stats, and each stat key
   equals its lowercased label.
+- **Sport images.** The editor uploads as soon as a file is picked: it asks
+  `POST /sports/upload-url` for a presigned url, `PUT`s the file to S3 with the
+  returned headers, then sends `fileUrl` as `backgroundImage` on save (`null`
+  removes it). JPEG, PNG, WebP or AVIF, up to 10 MB. The S3 bucket's CORS must
+  allow `PUT` from this app's origin.
 
 ## How to test
 
